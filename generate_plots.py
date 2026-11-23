@@ -51,26 +51,23 @@ def main():
     sqlite_ms = data["sqlite_ms"]
     cas_ms = data["cas_kernel_ms"]
     native_ms = data["native_kernel_ms"]
-    native_total_ms = data.get("native_total_ms", native_ms)
 
     categories = [
         "SQLite 3\nGROUP BY + SUM\n(CPU)",
-        "GPU Emulated\nCAS Spin-Loop\n(Kernel)",
-        "GPU Native FP32\n(Kernel Compute)",
-        "GPU Native FP32\n(Total incl. H2D Upload)"
+        "GPU Emulated\nCAS Spin-Loop",
+        "GPU Native\nFP32 Atomics"
     ]
-    runtimes = [sqlite_ms, cas_ms, native_ms, native_total_ms]
+    runtimes = [sqlite_ms, cas_ms, native_ms]
     
     colors = [
         "#7f8c8d",  # Neutral Slate Gray for SQLite (CPU)
         "#e74c3c",  # Vibrant Coral Red for CAS Spin-Loop
-        "#27ae60",  # Forest Emerald Green for Native Kernel
-        "#2980b9",  # Modern Deep Blue for Native Total
+        "#27ae60",  # Forest Emerald Green for Native FP32 Atomics
     ]
 
-    fig, ax = plt.subplots(figsize=(9, 5.8))
+    fig, ax = plt.subplots(figsize=(8.5, 5.5))
     x = np.arange(len(categories))
-    width = 0.55
+    width = 0.48
 
     bars = ax.bar(x, runtimes, width=width, color=colors, edgecolor="#2c3e50", linewidth=1.0)
 

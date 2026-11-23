@@ -44,7 +44,7 @@ Tested on **AMD Radeon RX 7600 (RDNA3, Navi 33)** with **Mesa Rusticl 26.3** via
 | :--- | :--- | :--- | :--- |
 | **SQLite 3 `GROUP BY + SUM` (CPU)** | **2,567.66 ms** | 1.0x (Baseline) | — |
 | **GPU Emulated CAS Loop (Kernel)** | **609.44 ms** | **4.2x faster** | 1.0x (Baseline) |
-| **GPU Native FP32 Atomics (Total incl. Upload)** | **9.91 ms** | **259.2x faster** | **61.5x faster** |
+| **GPU Native FP32 Atomics (Total incl. GPU Buffer Load)** | **9.91 ms** | **259.2x faster** | **61.5x faster** |
 | **GPU Native FP32 Atomics (Pure Kernel)** | **1.08 ms** | **2,377.6x faster** | **564.3x faster** |
 
 ---

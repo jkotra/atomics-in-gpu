@@ -124,7 +124,7 @@ def run_benchmarks():
     d_weights = cl.Buffer(ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=weights)
     queue.finish()
     h2d_ms = (time.perf_counter() - t0) * 1000.0
-    print(f"   Host-to-Device Buffer Upload ({N * 8 / (1024**2):.1f} MB): {h2d_ms:.2f} ms")
+    print(f"   Loading into GPU Buffer ({N * 8 / (1024**2):.1f} MB): {h2d_ms:.2f} ms")
 
     # Output buffers
     d_cas_out = cl.Buffer(ctx, mf.READ_WRITE, size=num_bins * 4)
@@ -199,7 +199,7 @@ def run_benchmarks():
     print(f"{'SQLite GROUP BY + SUM (CPU)':<40} | {sqlite_ms:>18.2f} ms | {'1.0x (baseline)':<20}")
     print(f"{'GPU Emulated CAS Loop (Kernel)':<40} | {cas_kernel_ms:>18.2f} ms | {sqlite_ms / cas_kernel_ms:>18.1f}x faster")
     print(f"{'GPU Native Hardware FP32 (Kernel)':<40} | {native_kernel_ms:>18.2f} ms | {sqlite_ms / native_kernel_ms:>18.1f}x faster")
-    print(f"{'GPU Native Hardware FP32 (incl. H2D)':<40} | {native_kernel_ms + h2d_ms:>18.2f} ms | {sqlite_ms / (native_kernel_ms + h2d_ms):>18.1f}x faster")
+    print(f"{'GPU Native Hardware FP32 (incl. GPU Buffer Load)':<40} | {native_kernel_ms + h2d_ms:>18.2f} ms | {sqlite_ms / (native_kernel_ms + h2d_ms):>18.1f}x faster")
     print("-" * 88)
     print(f"Speedup of Native FP32 over CAS Loop: {cas_kernel_ms / native_kernel_ms:.1f}x faster")
     print("=" * 88)
