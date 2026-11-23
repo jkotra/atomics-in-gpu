@@ -46,3 +46,13 @@ Tested on **AMD Radeon RX 7600 (RDNA3, Navi 33)** with **Mesa Rusticl 26.3** via
 | **GPU Emulated CAS Loop (Kernel)** | **609.44 ms** | **4.2x faster** | 1.0x (Baseline) |
 | **GPU Native FP32 Atomics (Total incl. Upload)** | **9.91 ms** | **259.2x faster** | **61.5x faster** |
 | **GPU Native FP32 Atomics (Pure Kernel)** | **1.08 ms** | **2,377.6x faster** | **564.3x faster** |
+
+---
+
+## Numerical Accuracy Verification
+
+| Category | Items | SQLite 3 (64-bit Float) | GPU Emulated CAS (FP32) | GPU Native Atomics (FP32) | Relative Diff (Native vs. SQLite) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Apple** | 1,000,000 | 179,948,318.21 g | 179,950,752.00 g | 179,949,424.00 g | **0.0006%** |
+| **Orange** | 1,000,000 | 210,007,481.59 g | 210,009,632.00 g | 210,011,904.00 g | **0.0021%** |
+| **Banana** | 1,000,000 | 130,013,646.01 g | 130,013,296.00 g | 130,013,088.00 g | **0.0004%** |
