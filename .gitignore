@@ -18,13 +18,36 @@ build/
 # Datasets and SQLite databases
 *.parquet
 *.db
+*.db-journal
+*.db-wal
+*.db-shm
 *.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.duckdb
+*.duckdb.wal
+
+# Environment variables & local secrets
+.env
+.env.*
+!.env.example
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
 
 # Caches and temporary files
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-*.swp
-*.swo
-*~
+*.log
+
+# Operating system files
 .DS_Store
+Thumbs.db
