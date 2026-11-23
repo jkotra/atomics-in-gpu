@@ -44,9 +44,7 @@ def main():
     os.makedirs(plot_dir, exist_ok=True)
 
     blog_img_dir = "/home/jkotra/Documents/Projects/jkotra.github.io/content/images/atomics-in-gpu"
-    blog_static_dir = "/home/jkotra/Documents/Projects/jkotra.github.io/static/images/atomics-in-gpu"
     os.makedirs(blog_img_dir, exist_ok=True)
-    os.makedirs(blog_static_dir, exist_ok=True)
 
     sqlite_ms = data["sqlite_ms"]
     cas_ms = data["cas_kernel_ms"]
@@ -109,8 +107,7 @@ def main():
 
     # Copy to blog assets
     shutil.copy(runtime_plot_path, os.path.join(blog_img_dir, "runtime_comparison.png"))
-    shutil.copy(runtime_plot_path, os.path.join(blog_static_dir, "runtime_comparison.png"))
-    print(f"Copied plot to blog directories: {blog_img_dir} and {blog_static_dir}")
+    print(f"Copied plot to blog directory: {blog_img_dir}")
 
 if __name__ == "__main__":
     main()
