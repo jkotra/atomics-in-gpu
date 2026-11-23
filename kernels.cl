@@ -5,7 +5,7 @@
 float __attribute__((overloadable)) atomic_fetch_add(volatile __global atomic_float *, float);
 
 // -----------------------------------------------------------------------------
-// Method 1: Emulated CAS Spin-Loop (lfp-api method)
+// Method 1: Emulated CAS Spin-Loop
 // Reinterprets float bits as int and spins on atomic_cmpxchg until successful.
 // -----------------------------------------------------------------------------
 void atomic_add_f32_cas(volatile __global int* addr, float val) {
@@ -17,16 +17,16 @@ void atomic_add_f32_cas(volatile __global int* addr, float val) {
     } while (read_val != old_val);
 }
 
-__kernel void histogram_cas(
+__kernel void fruit_histogram_cas(
     __global int* out_bins,
-    __global const float* in_data,
-    int num_bins,
+    __global const int* category_ids,
+    __global const float* weights,
     int N
 ) {
     int gid = get_global_id(0);
     if (gid < N) {
-        int bin_idx = gid % num_bins;
-        atomic_add_f32_cas(&out_bins[bin_idx], in_data[gid]);
+        int cat = category_ids[gid];
+        atomic_add_f32_cas(&out_bins[cat], weights[gid]);
     }
 }
 
@@ -34,15 +34,15 @@ __kernel void histogram_cas(
 // Method 2: Native Hardware Float Atomics (cl_ext_float_atomics)
 // Issues single native hardware atomic float addition instruction directly at L2.
 // -----------------------------------------------------------------------------
-__kernel void histogram_native(
+__kernel void fruit_histogram_native(
     volatile __global atomic_float* out_bins,
-    __global const float* in_data,
-    int num_bins,
+    __global const int* category_ids,
+    __global const float* weights,
     int N
 ) {
     int gid = get_global_id(0);
     if (gid < N) {
-        int bin_idx = gid % num_bins;
-        atomic_fetch_add(&out_bins[bin_idx], in_data[gid]);
+        int cat = category_ids[gid];
+        atomic_fetch_add(&out_bins[cat], weights[gid]);
     }
 }

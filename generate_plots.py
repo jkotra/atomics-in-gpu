@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Generate High-DPI Publication Quality Benchmark Plot: CAS vs. Native FP32 Atomics.
-Saves runtime_comparison.png (using a logarithmic scale on Y-axis for clear visibility)
+Generate High-DPI Publication Quality Benchmark Plot:
+SQLite GROUP BY vs. GPU Emulated CAS vs. GPU Native FP32 Atomics.
+Saves runtime_comparison.png (Log scale on Y-axis for clear visibility)
 to atomics-in-gpu/plots/ and copies to the blog assets directory.
 """
 
@@ -19,10 +20,10 @@ def set_plot_style():
         "axes.titleweight": "bold",
         "axes.labelsize": 11,
         "axes.labelweight": "semibold",
-        "xtick.labelsize": 10,
+        "xtick.labelsize": 10.5,
         "ytick.labelsize": 10,
         "legend.fontsize": 10.5,
-        "figure.titlesize": 15,
+        "figure.titlesize": 14,
         "figure.titleweight": "bold",
         "figure.dpi": 300,
         "savefig.dpi": 300,
@@ -39,8 +40,6 @@ def main():
     with open(json_path, "r") as f:
         data = json.load(f)
 
-    results = data["results"]
-
     plot_dir = os.path.join(base_dir, "plots")
     os.makedirs(plot_dir, exist_ok=True)
 
@@ -49,61 +48,72 @@ def main():
     os.makedirs(blog_img_dir, exist_ok=True)
     os.makedirs(blog_static_dir, exist_ok=True)
 
-    scenarios = [r["label"].split(" (")[0] for r in results]
-    x = np.arange(len(scenarios))
-    width = 0.35
+    sqlite_ms = data["sqlite_ms"]
+    cas_ms = data["cas_kernel_ms"]
+    native_ms = data["native_kernel_ms"]
+    native_total_ms = data.get("native_total_ms", native_ms)
 
-    cas_times = [r["cas_ms"] for r in results]
-    nat_times = [r["native_ms"] for r in results]
+    categories = [
+        "SQLite 3\nGROUP BY + SUM\n(CPU)",
+        "GPU Emulated\nCAS Spin-Loop\n(Kernel)",
+        "GPU Native FP32\n(Kernel Compute)",
+        "GPU Native FP32\n(Total incl. H2D Upload)"
+    ]
+    runtimes = [sqlite_ms, cas_ms, native_ms, native_total_ms]
+    
+    colors = [
+        "#7f8c8d",  # Neutral Slate Gray for SQLite (CPU)
+        "#e74c3c",  # Vibrant Coral Red for CAS Spin-Loop
+        "#27ae60",  # Forest Emerald Green for Native Kernel
+        "#2980b9",  # Modern Deep Blue for Native Total
+    ]
 
-    c_cas = "#e74c3c"   # Vibrant Red
-    c_nat = "#2980b9"   # Modern Deep Blue
+    fig, ax = plt.subplots(figsize=(9, 5.8))
+    x = np.arange(len(categories))
+    width = 0.55
 
-    # -------------------------------------------------------------------------
-    # Runtime Comparison (Log Scale on Y-Axis)
-    # -------------------------------------------------------------------------
-    fig, ax = plt.subplots(figsize=(9, 5.5))
-
-    rects1 = ax.bar(x - width/2, cas_times, width, label="Emulated CAS Loop (atomic_cmpxchg)", 
-                    color=c_cas, edgecolor="#2c3e50", linewidth=0.8)
-    rects2 = ax.bar(x + width/2, nat_times, width, label="Native Hardware Atomics (cl_ext_float_atomics)", 
-                    color=c_nat, edgecolor="#2c3e50", linewidth=0.8)
+    bars = ax.bar(x, runtimes, width=width, color=colors, edgecolor="#2c3e50", linewidth=1.0)
 
     ax.set_ylabel("Execution Time (ms) [Log Scale, Lower is Better]")
-    ax.set_title("Kernel Runtime: Emulated CAS Loop vs. Native FP32 Atomics (Lower is Better)")
+    ax.set_title("Aggregation Runtime: SQLite vs. GPU CAS vs. Native FP32 Atomics\n(3 Million Fruit Inventory Rows into 3 Bins — Lower is Better)")
     ax.set_xticks(x)
-    ax.set_xticklabels(scenarios)
+    ax.set_xticklabels(categories)
     ax.set_yscale("log")
-    ax.legend(frameon=True, facecolor="white", framealpha=0.9, loc="upper right")
+    ax.set_ylim(0.1, max(runtimes) * 8.0)
 
-    # Annotate CAS bars
-    for bar in rects1:
+    # Annotations on top of bars
+    for bar, val in zip(bars, runtimes):
         h = bar.get_height()
-        txt = f"{h:,.1f} ms" if h >= 100 else (f"{h:.1f} ms" if h >= 1.0 else f"{h:.2f} ms")
-        ax.annotate(txt, xy=(bar.get_x() + bar.get_width()/2, h), xytext=(0, 4),
-                    textcoords="offset points", ha="center", va="bottom", fontsize=8.5, fontweight="bold")
+        if val >= 100:
+            txt = f"{val:,.1f} ms"
+        elif val >= 1.0:
+            txt = f"{val:.1f} ms"
+        else:
+            txt = f"{val:.2f} ms"
+        
+        # Calculate speedup relative to SQLite
+        speedup = sqlite_ms / val
+        if speedup >= 1.05:
+            txt += f"\n({speedup:.1f}x faster)"
+        elif speedup <= 0.95:
+            txt += f"\n({1/speedup:.1f}x slower)"
+        else:
+            txt += "\n(Baseline)"
 
-    # Annotate Native bars
-    for bar in rects2:
-        h = bar.get_height()
-        txt = f"{h:.2f} ms" if h < 1 else f"{h:.1f} ms"
-        ax.annotate(txt, xy=(bar.get_x() + bar.get_width()/2, h), xytext=(0, 4),
-                    textcoords="offset points", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color="#1a5276")
+        ax.annotate(txt, xy=(bar.get_x() + bar.get_width()/2, h), xytext=(0, 5),
+                    textcoords="offset points", ha="center", va="bottom", fontsize=9.5, fontweight="bold")
 
-    ax.set_ylim(0.1, 15000)
     plt.tight_layout()
     
     runtime_plot_path = os.path.join(plot_dir, "runtime_comparison.png")
     plt.savefig(runtime_plot_path)
     plt.close()
+    print(f"Saved plot to {runtime_plot_path}")
 
     # Copy to blog assets
-    shutil.copy2(runtime_plot_path, os.path.join(blog_img_dir, "runtime_comparison.png"))
-    shutil.copy2(runtime_plot_path, os.path.join(blog_static_dir, "runtime_comparison.png"))
-
-    print("\nUpdated High-DPI runtime plot generated with log scale Y-axis:")
-    print(" -", runtime_plot_path)
-    print("Copied to blog assets in:", blog_img_dir)
+    shutil.copy(runtime_plot_path, os.path.join(blog_img_dir, "runtime_comparison.png"))
+    shutil.copy(runtime_plot_path, os.path.join(blog_static_dir, "runtime_comparison.png"))
+    print(f"Copied plot to blog directories: {blog_img_dir} and {blog_static_dir}")
 
 if __name__ == "__main__":
     main()

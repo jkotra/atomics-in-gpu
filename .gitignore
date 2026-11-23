@@ -15,6 +15,11 @@ build/
 *.egg-info/
 *.egg
 
+# Datasets and SQLite databases
+*.parquet
+*.db
+*.sqlite
+
 # Caches and temporary files
 .pytest_cache/
 .mypy_cache/

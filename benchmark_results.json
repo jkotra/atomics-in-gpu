@@ -1,42 +1,31 @@
 {
   "device": "zink Vulkan 1.4(AMD Radeon RX 7600 (RADV NAVI33) (MESA_RADV))",
-  "elements": 10000000,
-  "results": [
-    {
-      "bins": 1,
-      "label": "Single Bin (Extreme Contention)",
-      "cas_ms": 6675.12908,
-      "native_ms": 7.50887,
-      "speedup": 888.9658603757955,
-      "cas_mops": 1.4980983708557738,
-      "native_mops": 1331.7583071753807
+  "platform": "rusticl",
+  "num_rows": 3000000,
+  "num_bins": 3,
+  "h2d_transfer_ms": 8.827752999422955,
+  "sqlite_ms": 2567.660856000657,
+  "cas_kernel_ms": 609.43915,
+  "native_kernel_ms": 1.07993,
+  "native_total_ms": 9.907682999422956,
+  "cas_speedup_over_sqlite": 4.213153775894865,
+  "native_speedup_over_sqlite": 2377.617860417487,
+  "native_speedup_over_cas": 564.3320863389293,
+  "verification": {
+    "apple": {
+      "sqlite_sum": 179948318.21339417,
+      "cas_sum": 179950752.0,
+      "native_sum": 179949424.0
     },
-    {
-      "bins": 64,
-      "label": "64 Bins (Realistic Simulation Pattern)",
-      "cas_ms": 45.69862,
-      "native_ms": 0.87518,
-      "speedup": 52.21625265659636,
-      "cas_mops": 218.82498858827685,
-      "native_mops": 11426.22089170228
+    "orange": {
+      "sqlite_sum": 210007481.59307098,
+      "cas_sum": 210009632.0,
+      "native_sum": 210011904.0
     },
-    {
-      "bins": 256,
-      "label": "256 Bins (Moderate Contention)",
-      "cas_ms": 9.57115,
-      "native_ms": 0.62949,
-      "speedup": 15.204610081176824,
-      "cas_mops": 1044.8065279511868,
-      "native_mops": 15885.875867765968
-    },
-    {
-      "bins": 1024,
-      "label": "1024 Bins (Low Contention)",
-      "cas_ms": 2.32893,
-      "native_ms": 0.66782,
-      "speedup": 3.487361863975323,
-      "cas_mops": 4293.817332423043,
-      "native_mops": 14974.094815968376
+    "banana": {
+      "sqlite_sum": 130013646.0121727,
+      "cas_sum": 130013296.0,
+      "native_sum": 130013088.0
     }
-  ]
+  }
 }
