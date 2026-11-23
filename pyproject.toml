@@ -1,0 +1,11 @@
+[project]
+name = "atomics-in-gpu"
+version = "0.1.0"
+description = "GPU Float Atomics and Workgroup Privatization Benchmarks on Mesa Rusticl"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pyopencl>=2024.1",
+    "numpy>=1.26.0",
+    "matplotlib>=3.8.0",
+]
